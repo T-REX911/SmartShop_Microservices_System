@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -111,6 +112,25 @@ public class ProductService {
         }catch (Exception e){
             log.info("Error while retrieving data");
             return new ResponseEntity<>("Error while retrieving data : "+ e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    public ResponseEntity<?> bulkAddProduct(List<ProductDto> dto) {
+        try {
+            List<Product> products = dto.stream().map(product -> {
+                Product newProduct = new Product();
+                newProduct.setName(product.getName());
+                newProduct.setQty(product.getQty());
+                newProduct.setPrice(product.getPrice());
+                return newProduct;
+            }).collect(Collectors.toList());
+
+            List<Product> save = productRepository.saveAll(products);
+            log.info("Products created : "+save.toString());
+            return new ResponseEntity<>(save, HttpStatus.CREATED);
+        }catch (Exception e){
+            log.error("Products not created : "+ e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
         }
     }
 }

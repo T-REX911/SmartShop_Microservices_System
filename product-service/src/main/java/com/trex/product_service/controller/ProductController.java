@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/products")
 public class ProductController {
@@ -17,6 +19,12 @@ public class ProductController {
     public ResponseEntity<?> addProduct(@RequestBody ProductDto dto){
         return productService.addProduct(dto);
     }
+    //addAll
+    @PostMapping("/addAll")
+    public ResponseEntity<?> bulkAddProduct(@RequestBody List<ProductDto> dto){
+        return productService.bulkAddProduct(dto);
+    }
+
     //update
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateProduct(@PathVariable long id,@RequestBody ProductDto dto){
