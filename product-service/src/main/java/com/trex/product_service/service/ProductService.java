@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -62,7 +63,7 @@ public class ProductService {
             if(currentProduct.isPresent()){
                 productRepository.deleteById(id);
                 log.info("Product deleted : "+ currentProduct.toString());
-                return new ResponseEntity<>("Product deleted : "+ currentProduct.toString(), HttpStatus.OK);
+                return new ResponseEntity<>("Product deleted : "+ currentProduct.get().toString(), HttpStatus.OK);
             }else {
                 log.info("Product not found");
                 return new ResponseEntity<>("Product not found", HttpStatus.NOT_FOUND);
@@ -97,6 +98,16 @@ public class ProductService {
                 log.info("Product not found");
                 return new ResponseEntity<>("Product not found", HttpStatus.NOT_FOUND);
             }
+        }catch (Exception e){
+            log.info("Error while retrieving data");
+            return new ResponseEntity<>("Error while retrieving data : "+ e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    public ResponseEntity<?> getAllProducts() {
+        try {
+            List<Product> products = productRepository.findAll();
+            return new ResponseEntity<>(products,HttpStatus.OK);
         }catch (Exception e){
             log.info("Error while retrieving data");
             return new ResponseEntity<>("Error while retrieving data : "+ e.getMessage(), HttpStatus.BAD_REQUEST);

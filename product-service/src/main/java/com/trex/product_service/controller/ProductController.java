@@ -39,5 +39,9 @@ public class ProductController {
     }
 
     //getALl
+    @GetMapping("/get")
+    public ResponseEntity<?> getAllProducts(){
+        return productService.getAllProducts();
+    }
 
 }
