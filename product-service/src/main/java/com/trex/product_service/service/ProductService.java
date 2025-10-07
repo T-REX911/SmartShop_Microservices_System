@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @Slf4j
 public class ProductService {
@@ -27,6 +29,28 @@ public class ProductService {
         }catch (Exception e){
             log.error("Product not created : "+ e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+        }
+    }
+
+    public ResponseEntity<?> updateProduct(long id, ProductDto dto) {
+        try{
+            Optional<Product> currentProduct = productRepository.findById(id);
+            if(currentProduct.isPresent()){
+                currentProduct.get().setName(dto.getName());
+                currentProduct.get().setQty(dto.getQty());
+                currentProduct.get().setPrice(dto.getPrice());
+
+                Product save = productRepository.save(currentProduct.get());
+                log.info("Product updated : "+save.toString());
+                return new ResponseEntity<>(save, HttpStatus.OK);
+            }else {
+                log.info("Product not found");
+                return new ResponseEntity<>("Product not found", HttpStatus.NOT_FOUND);
+            }
+
+        }catch (Exception e){
+            log.error("Product not updated : "+ e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_MODIFIED);
         }
     }
 }

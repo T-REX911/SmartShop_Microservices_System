@@ -4,9 +4,7 @@ import com.trex.product_service.Dto.ProductDto;
 import com.trex.product_service.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/products")
@@ -16,10 +14,14 @@ public class ProductController {
 
     //add
     @PostMapping("/add")
-    public ResponseEntity<?> addProduct(ProductDto dto){
+    public ResponseEntity<?> addProduct(@RequestBody ProductDto dto){
         return productService.addProduct(dto);
     }
     //update
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateProduct(@PathVariable long id,@RequestBody ProductDto dto){
+        return productService.updateProduct(id,dto);
+    }
     //delete
     //getById
     //getALl
