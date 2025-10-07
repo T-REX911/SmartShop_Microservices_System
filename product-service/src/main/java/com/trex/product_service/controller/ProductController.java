@@ -23,6 +23,10 @@ public class ProductController {
         return productService.updateProduct(id,dto);
     }
     //delete
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteProduct(@PathVariable long id){
+        return productService.deleteProduct(id);
+    }
     //getById
     //getALl
     //getByName

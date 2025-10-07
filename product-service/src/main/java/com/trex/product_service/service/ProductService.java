@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -32,6 +33,7 @@ public class ProductService {
         }
     }
 
+    @Transactional
     public ResponseEntity<?> updateProduct(long id, ProductDto dto) {
         try{
             Optional<Product> currentProduct = productRepository.findById(id);
@@ -51,6 +53,23 @@ public class ProductService {
         }catch (Exception e){
             log.error("Product not updated : "+ e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_MODIFIED);
+        }
+    }
+
+    public ResponseEntity<?> deleteProduct(long id) {
+        try {
+            Optional<Product> currentProduct = productRepository.findById(id);
+            if(currentProduct.isPresent()){
+                productRepository.deleteById(id);
+                log.info("Product deleted : "+ currentProduct.toString());
+                return new ResponseEntity<>("Product deleted : "+ currentProduct.toString(), HttpStatus.OK);
+            }else {
+                log.info("Product not found");
+                return new ResponseEntity<>("Product not found", HttpStatus.NOT_FOUND);
+            }
+        }catch (Exception e){
+            log.error("Product not deleted : "+ e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 }
