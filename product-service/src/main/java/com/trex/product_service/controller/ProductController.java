@@ -28,6 +28,10 @@ public class ProductController {
         return productService.deleteProduct(id);
     }
     //getById
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getProductById(@PathVariable long id){
+        return productService.getProductById(id);
+    }
     //getALl
     //getByName
 }

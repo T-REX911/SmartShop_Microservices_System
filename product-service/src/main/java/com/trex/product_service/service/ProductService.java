@@ -72,4 +72,19 @@ public class ProductService {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+
+    public ResponseEntity<?> getProductById(long id) {
+        try{
+            Optional<Product> product = productRepository.findById(id);
+            if (product.isPresent()){
+                return new ResponseEntity<>(product.get(),HttpStatus.OK);
+            }else{
+                log.info("Product not found");
+                return new ResponseEntity<>("Product not found", HttpStatus.NOT_FOUND);
+            }
+        }catch (Exception e){
+            log.info("Error while retrieving data");
+            return new ResponseEntity<>("Error while retrieving data : "+ e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
 }
