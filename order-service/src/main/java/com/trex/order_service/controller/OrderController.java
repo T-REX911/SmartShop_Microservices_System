@@ -1,5 +1,6 @@
 package com.trex.order_service.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.trex.order_service.dto.OrderDto;
 import com.trex.order_service.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ public class OrderController {
 
     //createOrder
     @PostMapping("/add")
-    public ResponseEntity<?> createOrder(@RequestBody OrderDto dto){
+    public ResponseEntity<?> createOrder(@RequestBody OrderDto dto) throws JsonProcessingException {
         return orderService.createOrder(dto);
     }
 

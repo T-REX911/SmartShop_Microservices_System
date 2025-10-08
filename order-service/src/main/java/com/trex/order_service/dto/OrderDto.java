@@ -7,5 +7,6 @@ import java.util.List;
 @Data
 public class OrderDto {
     private String customerName;
+    private String customerEmail;
     private List<ItemDto> itemDtoList;
 }

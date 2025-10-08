@@ -1,0 +1,10 @@
+com\trex\order_service\OrderServiceApplication.class
+com\trex\order_service\repository\OrderRepository.class
+com\trex\order_service\service\OrderService.class
+com\trex\order_service\dto\EmailDto.class
+com\trex\order_service\dto\ProductDto.class
+com\trex\order_service\model\Order.class
+com\trex\order_service\dto\OrderDto.class
+com\trex\order_service\dto\ItemDto.class
+com\trex\order_service\feign\ProductInterface.class
+com\trex\order_service\model\Item.class

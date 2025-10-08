@@ -1,6 +1,8 @@
 package com.trex.order_service.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.trex.order_service.dto.EmailDto;
 import com.trex.order_service.dto.ItemDto;
 import com.trex.order_service.dto.OrderDto;
 import com.trex.order_service.dto.ProductDto;
@@ -9,7 +11,9 @@ import com.trex.order_service.model.Item;
 import com.trex.order_service.model.Order;
 import com.trex.order_service.repository.OrderRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -25,8 +29,18 @@ public class OrderService {
     OrderRepository orderRepository;
     @Autowired
     ProductInterface productInterface;
+    @Autowired
+    private RabbitTemplate template;
 
-    public ResponseEntity<?> createOrder(OrderDto dto) {
+    @Value("${rabbitmq.exchange}")
+    private String order_exchange;
+
+    @Value("${rabbitmq.routing-key}")
+    private String email_routing_key;
+
+    public ResponseEntity<?> createOrder(OrderDto dto) throws JsonProcessingException {
+
+        log.info(dto.toString());
 
         List<ProductDto> productInfo = getProductInfo(dto.getItemDtoList());
 
@@ -36,13 +50,30 @@ public class OrderService {
             Order newOrder = createNewOrder(productInfo,dto.getItemDtoList());
             Order save = orderRepository.save(newOrder);
 
-            log.info("Order created : " + save.toString());
+            sendOrderPlacedEmail(save,dto.getCustomerEmail());
+
             return new ResponseEntity<>(save,HttpStatus.OK);
         }else{
             log.error("Order can not be create : No Products Available");
             return new ResponseEntity<>("Order can not be placed", HttpStatus.BAD_REQUEST);
         }
 
+    }
+
+    private void sendOrderPlacedEmail(Order save, String customerEmail) throws JsonProcessingException {
+
+        ObjectMapper mapper = new ObjectMapper();
+        String orderData = mapper.writeValueAsString(save);
+
+        String data = "Your Order Has been Placed\n"+orderData;
+
+        EmailDto emailData = new EmailDto();
+
+        emailData.setCustomerEmail(customerEmail);
+        emailData.setSubject("Order Placed");
+        emailData.setBody(data);
+
+        template.convertAndSend(order_exchange,email_routing_key,emailData);
     }
 
     private Order createNewOrder(List<ProductDto> productInfo, List<ItemDto> itemDtoList) {
