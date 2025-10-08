@@ -33,35 +33,41 @@ public class OrderService {
         boolean productsAvailable = isAllProductsAvailable(dto.getItemDtoList(),productInfo);
 
         if(productsAvailable){
-            Order order = new Order();
-            List<Item> newItems = productInfo.stream().map(product -> {
-                Item item = new Item();
-                item.setProductId(product.getId());
-                for (long itemId:dto.getItemDtoList().stream().map(i->i.getId()).collect(Collectors.toList())){
-                    if(itemId == product.getId()){
-                        Optional<ItemDto> matchingItem = dto.getItemDtoList().stream()
-                                .filter(x -> x.getId() == itemId) // find the matching item
-                                .findFirst();
+            Order newOrder = createNewOrder(productInfo,dto.getItemDtoList());
+            Order save = orderRepository.save(newOrder);
 
-                        item.setQty(matchingItem.map(ItemDto::getQty) // get qty if present
-                                .orElse(0));
-
-                    }
-                }
-                item.setOrder(order);
-                return item;
-            }).collect(Collectors.toList());
-
-            order.setStatus("New");
-            order.setItems(newItems);
-
-            Order save = orderRepository.save(order);
+            log.info("Order created : " + save.toString());
             return new ResponseEntity<>(save,HttpStatus.OK);
         }else{
-
+            log.error("Order can not be create : No Products Available");
             return new ResponseEntity<>("Order can not be placed", HttpStatus.BAD_REQUEST);
         }
 
+    }
+
+    private Order createNewOrder(List<ProductDto> productInfo, List<ItemDto> itemDtoList) {
+        Order order = new Order();
+        List<Item> newItems = productInfo.stream().map(product -> {
+            Item item = new Item();
+            item.setProductId(product.getId());
+
+            for (long itemId:itemDtoList.stream().map(i->i.getId()).collect(Collectors.toList())){
+                if(itemId == product.getId()){
+                    Optional<ItemDto> matchingItem = itemDtoList.stream()
+                            .filter(x -> x.getId() == itemId) // find the matching item
+                            .findFirst();
+
+                    item.setQty(matchingItem.map(ItemDto::getQty) // get qty if present
+                            .orElse(0));
+
+                }
+            }
+            item.setOrder(order);
+            return item;
+        }).collect(Collectors.toList());
+        order.setStatus("New");
+        order.setItems(newItems);
+        return order;
     }
 
     private List<ProductDto> getProductInfo(List<ItemDto> itemDto) {
